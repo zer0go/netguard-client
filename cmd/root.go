@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/rs/zerolog/pkgerrors"
 	"github.com/spf13/cobra"
+	"github.com/zer0go/netguard-client/internal/config"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -50,6 +51,11 @@ func Execute(version string) {
 		Caller().
 		Str("app_version", version).
 		Logger()
+
+	err := config.Load()
+	if err != nil {
+		log.Warn().Err(err).Msg("")
+	}
 
 	rootCmd.Version = version
 	rootCmd.Short += " " + version
