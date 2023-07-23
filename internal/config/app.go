@@ -58,6 +58,15 @@ func Update(c App) error {
 	return nil
 }
 
+func IsEmpty() bool {
+	stat, err := os.Stat(Path + "/" + FileName)
+	if err != nil {
+		return true
+	}
+
+	return stat.Size() > 0
+}
+
 func Get() *App {
 	return &config
 }
