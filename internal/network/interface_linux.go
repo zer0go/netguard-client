@@ -45,11 +45,11 @@ func (i *Interface) ApplyAddress() error {
 		return errors.Errorf("failed to locate link %s", err)
 	}
 
-	currentAddrs, err := netlink.AddrList(link, 0)
+	routes, err := netlink.RouteList(link, 0)
 	if err != nil {
 		return err
 	}
-	routes, err := netlink.RouteList(link, 0)
+	currentAddrs, err := netlink.AddrList(link, 0)
 	if err != nil {
 		return err
 	}
