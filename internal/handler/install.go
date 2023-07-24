@@ -19,7 +19,6 @@ func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 	log.Debug().Msg("installing application...")
 
 	interfaceName, _ := cmd.Flags().GetString("interface")
-	cidr, _ := cmd.Flags().GetString("network")
 	mtu, _ := cmd.Flags().GetInt("mtu")
 
 	if _, err := os.Stat(config.Path); os.IsNotExist(err) {
@@ -30,7 +29,6 @@ func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 
 	err := config.Update(config.App{
 		InterfaceName: interfaceName,
-		NetworkCIDR:   cidr,
 		MTU:           mtu,
 	})
 	if err != nil {

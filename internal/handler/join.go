@@ -5,6 +5,7 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/zer0go/netguard-client/internal/config"
+	"github.com/zer0go/netguard-client/internal/network"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 	"net"
@@ -21,11 +22,19 @@ func NewJoinHandler() *JoinHandler {
 func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 	log.Info().Msg("joining to server...")
 
-	listeningPort, _ := cmd.Flags().GetInt("listening_port")
-	privateKeyBase64, _ := cmd.Flags().GetString("private_key")
+	token, _ := cmd.Flags().GetString("token")
+
+	log.Print(token)
+
 	peerAllowedIP, _ := cmd.Flags().GetString("peer_allowed_ip")
 	peerEndpointAddress, _ := cmd.Flags().GetString("peer_endpoint")
 	peerPublicKeyBase64, _ := cmd.Flags().GetString("peer_public_key")
+
+	networkInterface := network.NewInterfaceFromConfig(config.Get())
+	if err := networkInterface.Configure(); err != nil {
+		return err
+	}
+
 	wg, err := wgctrl.New()
 	if err != nil {
 		return errors.Errorf("wgctrl %s", err)

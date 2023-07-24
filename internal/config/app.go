@@ -6,12 +6,11 @@ import (
 )
 
 const (
-	Path     = "/etc/netguard"
-	FileName = "config.yaml"
-
 	DefaultInterfaceName = "netguard"
 	DefaultMTU           = 1280
 	DefaultListeningPort = 51821
+	Path                 = "/etc/netguard"
+	FileName             = "config.yaml"
 )
 
 var (

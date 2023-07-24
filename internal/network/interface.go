@@ -22,9 +22,9 @@ var wgMutex = sync.Mutex{}
 
 func NewInterfaceFromConfig(c *config.App) *Interface {
 	return &Interface{
-		Name:      c.InterfaceName,
-		MTU:       c.MTU,
-		Addresses: CreateFromCIDR(c.NetworkCIDR),
+		Name: c.InterfaceName,
+		MTU:  c.MTU,
+		//Addresses: CreateFromCIDR(c.NetworkCIDR),
 	}
 }
 
@@ -34,11 +34,11 @@ func (i *Interface) Configure() error {
 
 	log.Debug().Msg("adding addresses to interface")
 
-	if err := i.ApplyAddress(); err != nil {
-		return err
-	}
 	if err := i.ApplyMTU(); err != nil {
 		return errors.Errorf("configure set MTU %s", err)
+	}
+	if err := i.ApplyAddress(); err != nil {
+		return err
 	}
 
 	return nil

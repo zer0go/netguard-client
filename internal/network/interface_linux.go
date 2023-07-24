@@ -39,6 +39,18 @@ func (i *Interface) LoadLink() error {
 	return nil
 }
 
+func (i *Interface) ApplyMTU() error {
+	link, err := i.getKernelLink()
+	if err != nil {
+		return err
+	}
+	if err := netlink.LinkSetMTU(link, i.MTU); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (i *Interface) ApplyAddress() error {
 	link, err := netlink.LinkByName(i.Name)
 	if err != nil {
@@ -87,18 +99,6 @@ func (i *Interface) ApplyAddress() error {
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (i *Interface) ApplyMTU() error {
-	link, err := i.getKernelLink()
-	if err != nil {
-		return err
-	}
-	if err := netlink.LinkSetMTU(link, i.MTU); err != nil {
-		return err
 	}
 
 	return nil

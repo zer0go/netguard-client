@@ -15,9 +15,7 @@ var installCmd = &cobra.Command{
 
 func init() {
 	installCmd.Flags().StringP("interface", "i", config.DefaultInterfaceName, "interface name")
-	installCmd.Flags().StringP("network", "n", "", "network range (eg: 10.2.3.1/24) [required]")
-	installCmd.Flags().IntP("mtu", "m", config.DefaultMTU, "mtu")
-	_ = installCmd.MarkFlagRequired("network")
+	installCmd.Flags().Int("mtu", config.DefaultMTU, "mtu")
 
 	rootCmd.AddCommand(installCmd)
 }
