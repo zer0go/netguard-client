@@ -1,7 +1,6 @@
 package network
 
 import (
-	"github.com/rs/zerolog/log"
 	"net"
 )
 
@@ -11,18 +10,14 @@ type InterfaceAddress struct {
 	AddRoute bool
 }
 
-func CreateFromCIDR(cidr string) []InterfaceAddress {
-	var address []InterfaceAddress
-
+func CreateInterfaceAddressFromCIDR(cidr string) (*InterfaceAddress, error) {
 	ip, ipNet, err := net.ParseCIDR(cidr)
 	if err != nil {
-		log.Err(err)
-		return address
+		return nil, err
 	}
-	address = append(address, InterfaceAddress{
+
+	return &InterfaceAddress{
 		IP:      ip,
 		Network: *ipNet,
-	})
-
-	return address
+	}, nil
 }
