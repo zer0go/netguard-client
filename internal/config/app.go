@@ -63,7 +63,7 @@ func IsEmpty() bool {
 		return true
 	}
 
-	return stat.Size() > 0
+	return stat.Size() == 0
 }
 
 func Get() *App {
