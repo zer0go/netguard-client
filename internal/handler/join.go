@@ -60,6 +60,10 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 	}
 
 	response, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+
 	defer func(Body io.ReadCloser) {
 		_ = Body.Close()
 	}(response.Body)
