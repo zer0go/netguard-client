@@ -6,7 +6,7 @@ import (
 	"github.com/zer0go/netguard-client/internal/handler"
 )
 
-var command = &cobra.Command{
+var joinCommand = &cobra.Command{
 	Use:          "join",
 	Short:        "join to server",
 	SilenceUsage: true,
@@ -14,8 +14,8 @@ var command = &cobra.Command{
 }
 
 func init() {
-	command.Flags().StringP("token", "t", "", "token")
-	_ = command.MarkFlagRequired("token")
+	joinCommand.Flags().StringP("token", "t", "", "token")
+	_ = joinCommand.MarkFlagRequired("token")
 
-	rootCmd.AddCommand(command)
+	rootCmd.AddCommand(joinCommand)
 }

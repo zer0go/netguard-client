@@ -53,7 +53,7 @@ func Execute(version string) {
 		Logger()
 
 	err := config.Load()
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		log.Warn().Err(err).Msg("")
 	}
 
