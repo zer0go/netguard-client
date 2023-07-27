@@ -3,15 +3,17 @@ package handler
 import (
 	"bytes"
 	"fmt"
+	"net"
+	"sort"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"net"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type ShowHandler struct {
@@ -50,7 +52,15 @@ func (h *ShowHandler) Handle(_ *cobra.Command, args []string) error {
 	for _, d := range devices {
 		output += formatDevice(d)
 
-		for _, p := range d.Peers {
+		peers := d.Peers
+		sort.SliceStable(peers, func(i, j int) bool {
+			p1 := peers[i]
+			p2 := peers[j]
+
+			return int(time.Since(p1.LastHandshakeTime).Seconds()) > int(time.Since(p2.LastHandshakeTime).Seconds())
+		})
+
+		for _, p := range peers {
 			output += formatPeer(p)
 		}
 	}
