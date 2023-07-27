@@ -57,7 +57,7 @@ func (h *ShowHandler) Handle(_ *cobra.Command, args []string) error {
 			p1 := peers[i]
 			p2 := peers[j]
 
-			return int(time.Since(p1.LastHandshakeTime).Seconds()) > int(time.Since(p2.LastHandshakeTime).Seconds())
+			return int(time.Since(p1.LastHandshakeTime).Seconds()) < int(time.Since(p2.LastHandshakeTime).Seconds())
 		})
 
 		for _, p := range peers {
