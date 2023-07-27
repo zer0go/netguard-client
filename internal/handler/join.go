@@ -3,6 +3,11 @@ package handler
 import (
 	"encoding/base64"
 	"encoding/json"
+	"io"
+	"net"
+	"net/http"
+	"time"
+
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
@@ -10,16 +15,12 @@ import (
 	"github.com/zer0go/netguard-client/internal/network"
 	"golang.zx2c4.com/wireguard/wgctrl"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
-	"io"
-	"net"
-	"net/http"
-	"time"
 )
 
 type Peer struct {
-	AllowedIP string `json:"allowed_ip"`
-	Endpoint  string `json:"endpoint"`
-	PublicKey string `json:"public_key"`
+	AllowedIPs []string `json:"allowed_ips"`
+	Endpoint   string   `json:"endpoint"`
+	PublicKey  string   `json:"public_key"`
 }
 
 type WgConfig struct {
@@ -114,11 +115,14 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 	var peers []wgtypes.PeerConfig
 	for _, peer := range wgConfig.Peers {
 		var allowedIPs []net.IPNet
-		ipNet := net.IPNet{
-			IP:   net.ParseIP(peer.AllowedIP),
-			Mask: net.IPv4Mask(255, 255, 255, 255),
+		for _, allowedIp := range peer.AllowedIPs {
+			ipNet := net.IPNet{
+				IP:   net.ParseIP(allowedIp),
+				Mask: net.IPv4Mask(255, 255, 255, 255),
+			}
+			allowedIPs = append(allowedIPs, ipNet)
 		}
-		allowedIPs = append(allowedIPs, ipNet)
+		
 		peerEndpoint, err := net.ResolveUDPAddr("udp", peer.Endpoint)
 		if err != nil {
 			return err
