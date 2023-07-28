@@ -123,10 +123,14 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 			allowedIPs = append(allowedIPs, ipNet)
 		}
 		
-		peerEndpoint, err := net.ResolveUDPAddr("udp", peer.Endpoint)
-		if err != nil {
-			return err
+		var peerEndpoint *net.UDPAddr
+		if peer.Endpoint != "" {
+			peerEndpoint, err = net.ResolveUDPAddr("udp", peer.Endpoint)
+			if err != nil {
+				return err
+			}
 		}
+		
 		peerPublicKey, err := wgtypes.ParseKey(peer.PublicKey)
 		if err != nil {
 			return err
