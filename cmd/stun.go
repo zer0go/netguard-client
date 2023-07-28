@@ -9,7 +9,7 @@ import (
 
 var stunCommand = &cobra.Command{
 	Use:          "stun <port>",
-	Short:        "udp hole punching on the given port",
+	Short:        "UDP hole punching on the given port",
 	SilenceUsage: true,
 	Args:         cobra.MinimumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {

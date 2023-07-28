@@ -7,7 +7,7 @@ import (
 
 var unInstallCmd = &cobra.Command{
 	Use:          "uninstall",
-	Short:        "UnInstall ngclient binary and daemon",
+	Short:        "Uninstall ngclient binary and daemon",
 	SilenceUsage: true,
 	RunE:         handler.NewUnInstallHandler().Handle,
 }

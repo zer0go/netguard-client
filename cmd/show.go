@@ -7,10 +7,10 @@ import (
 
 var showCmd = &cobra.Command{
 	Use:          "show { interface }",
-	Short:        "show wireguard config and device information",
+	Short:        "Show wireguard config and device information",
 	SilenceUsage: true,
 	RunE:         handler.NewShowHandler().Handle,
-	Version:      "0.1.7",
+	Version:      "0.1.8",
 }
 
 func init() {
