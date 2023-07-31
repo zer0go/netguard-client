@@ -61,6 +61,7 @@ func Execute(version string) {
 	rootCmd.Short += " " + version
 
 	if err := rootCmd.Execute(); err != nil {
-		log.Fatal().Err(err)
+		log.Warn().Err(err).Msg("something went wrong")
+		os.Exit(1)
 	}
 }
