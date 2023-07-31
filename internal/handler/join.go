@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/pkg/errors"
@@ -55,6 +56,11 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 	req.Header.Set("Authorization", "Bearer "+joinConfig["token"])
+	hostName, err := os.Hostname()
+	if err != nil {
+		return err
+	}
+	req.Header.Set("X-Node-ID", hostName)
 
 	client := http.Client{
 		Timeout: 30 * time.Second,
@@ -76,6 +82,10 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 	var wgConfig WgConfig
 	err = json.Unmarshal(responseBody, &wgConfig)
 	if err != nil {
+		log.Warn().
+			Interface("request_header", req.Header).
+			Str("response_body", string(responseBody)).
+			Msg("invalid json response")
 		return err
 	}
 
