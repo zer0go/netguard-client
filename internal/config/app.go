@@ -1,8 +1,14 @@
 package config
 
 import (
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
 	"gopkg.in/yaml.v3"
 	"os"
+	"path/filepath"
+	"strconv"
+	"time"
 )
 
 const (
@@ -63,6 +69,36 @@ func IsEmpty() bool {
 	}
 
 	return stat.Size() == 0
+}
+
+func ConfigureLogger(verbosity int) {
+	switch verbosity {
+	case 1:
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	case 0:
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	default:
+		zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	}
+
+	zerolog.TimeFieldFormat = time.RFC3339
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	zerolog.CallerMarshalFunc = func(pc uintptr, file string, line int) string {
+		dir := filepath.Dir(file)
+		parent := filepath.Base(dir)
+		return parent + "/" + filepath.Base(file) + ":" + strconv.Itoa(line)
+	}
+
+	log.Logger = log.
+		With().
+		Timestamp().
+		Stack().
+		Caller().
+		Logger()
+
+	if os.Getenv("LOG_FORMAT") != "json" {
+		log.Logger = log.Logger.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: zerolog.TimeFieldFormat})
+	}
 }
 
 func Get() *App {
