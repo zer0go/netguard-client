@@ -6,7 +6,7 @@ import (
 )
 
 var showCmd = &cobra.Command{
-	Use:          "show { interface }",
+	Use:          "show [interface]",
 	Short:        "Show wireguard config and device information",
 	SilenceUsage: true,
 	RunE:         handler.NewShowHandler().Handle,
