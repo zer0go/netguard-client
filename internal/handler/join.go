@@ -103,9 +103,12 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 	appConfig = config.Get()
 	log.Debug().
 		Interface("AppConfig", appConfig).
-		Msg("")
+		Msg("config updated")
 
 	networkInterface := network.NewInterfaceFromConfig(appConfig)
+	if err := networkInterface.LoadLink(); err != nil {
+		return err
+	}
 	if err := networkInterface.Configure(); err != nil {
 		return err
 	}
@@ -132,7 +135,7 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 			}
 			allowedIPs = append(allowedIPs, ipNet)
 		}
-		
+
 		var peerEndpoint *net.UDPAddr
 		if peer.Endpoint != "" {
 			peerEndpoint, err = net.ResolveUDPAddr("udp", peer.Endpoint)
@@ -140,7 +143,7 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 				return err
 			}
 		}
-		
+
 		peerPublicKey, err := wgtypes.ParseKey(peer.PublicKey)
 		if err != nil {
 			return err

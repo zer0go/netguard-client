@@ -7,6 +7,8 @@ import (
 	"sync"
 )
 
+var wgMutex = sync.Mutex{}
+
 type Interface struct {
 	Name      string
 	Link      NetLinkInterface
@@ -17,8 +19,6 @@ type Interface struct {
 type NetLinkInterface interface {
 	Close() error
 }
-
-var wgMutex = sync.Mutex{}
 
 func NewInterfaceFromConfig(c *config.App) *Interface {
 	return &Interface{

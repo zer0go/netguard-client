@@ -34,7 +34,7 @@ func (h *UnInstallHandler) Handle(_ *cobra.Command, _ []string) error {
 		return err
 	}
 
-	err = os.RemoveAll(config.Path)
+	err = os.RemoveAll(config.GetConfigPath())
 	if err != nil {
 		return err
 	}

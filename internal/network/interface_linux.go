@@ -8,6 +8,10 @@ import (
 	"os"
 )
 
+const (
+	NetlinkType = "wireguard"
+)
+
 func (i *Interface) Create() error {
 	err := i.LoadLink()
 	if err != nil {
@@ -40,9 +44,9 @@ func (i *Interface) LoadLink() error {
 }
 
 func (i *Interface) ApplyMTU() error {
-	link, err := i.getKernelLink()
+	link, err := netlink.LinkByName(i.Name)
 	if err != nil {
-		return err
+		return errors.Errorf("failed to locate link %s", err)
 	}
 	if err := netlink.LinkSetMTU(link, i.MTU); err != nil {
 		return err
@@ -84,7 +88,7 @@ func (i *Interface) ApplyAddress() error {
 
 	for _, addr := range i.Addresses {
 		if addr.IP != nil && addr.Network.IP != nil {
-			log.Info().
+			log.Debug().
 				Str("address", addr.IP.String()).
 				Str("network", addr.Network.String()).
 				Msg("adding address")
@@ -95,7 +99,7 @@ func (i *Interface) ApplyAddress() error {
 				},
 			}
 			if err := netlink.AddrAdd(link, &netLinkAddr); err != nil {
-				log.Error().Err(err).Msg("error adding addrress")
+				log.Error().Err(err).Msg("error adding address")
 			}
 		}
 
@@ -113,7 +117,7 @@ func (i *Interface) Close() error {
 	return link.Close()
 }
 
-func (i *Interface) getKernelLink() (*NetLink, error) {
+func (i *Interface) getKernelLink() (*netLink, error) {
 	link := createKernelLink(i.Name)
 	if link == nil {
 		return nil, errors.New("failed to create kernel interface")
@@ -143,11 +147,27 @@ func (i *Interface) deleteExistingLink() error {
 	return nil
 }
 
-func createKernelLink(name string) *NetLink {
+func createKernelLink(name string) *netLink {
 	linkAttrs := netlink.NewLinkAttrs()
 	linkAttrs.Name = name
 
-	return &NetLink{
+	return &netLink{
 		attrs: &linkAttrs,
 	}
+}
+
+type netLink struct {
+	attrs *netlink.LinkAttrs
+}
+
+func (l *netLink) Close() error {
+	return netlink.LinkDel(l)
+}
+
+func (l *netLink) Attrs() *netlink.LinkAttrs {
+	return l.attrs
+}
+
+func (l *netLink) Type() string {
+	return NetlinkType
 }

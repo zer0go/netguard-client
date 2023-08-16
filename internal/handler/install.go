@@ -18,16 +18,21 @@ func NewInstallHandler() *InstallHandler {
 func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 	log.Debug().Msg("installing application...")
 
+	err := install()
+	if err != nil {
+		return err
+	}
+
 	interfaceName, _ := cmd.Flags().GetString("interface")
 	mtu, _ := cmd.Flags().GetInt("mtu")
 
-	if _, err := os.Stat(config.Path); os.IsNotExist(err) {
-		if err := os.Mkdir(config.Path, os.ModePerm); err != nil {
+	if _, err := os.Stat(config.GetConfigPath()); os.IsNotExist(err) {
+		if err := os.Mkdir(config.GetConfigPath(), os.ModePerm); err != nil {
 			return err
 		}
 	}
 
-	err := config.Update(config.App{
+	err = config.Update(config.App{
 		InterfaceName: interfaceName,
 		MTU:           mtu,
 	})
@@ -38,7 +43,7 @@ func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 	appConfig := config.Get()
 	log.Debug().
 		Interface("AppConfig", appConfig).
-		Msg("")
+		Msg("config updated")
 
 	networkInterface := network.NewInterfaceFromConfig(appConfig)
 	if err := networkInterface.Create(); err != nil {
@@ -48,7 +53,7 @@ func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 		return err
 	}
 
-	log.Debug().Msg("application was installed.")
+	log.Debug().Msg("application installed.")
 
 	return nil
 }

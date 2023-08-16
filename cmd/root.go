@@ -9,7 +9,7 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:              "ngclient",
-	Short:            "NetGuard Client",
+	Short:            config.AppName + " Client",
 	SilenceErrors:    true,
 	PersistentPreRun: bootstrap,
 }
@@ -26,7 +26,7 @@ func bootstrap(cmd *cobra.Command, _ []string) {
 
 	err := config.Load()
 	if err != nil && !os.IsNotExist(err) {
-		log.Warn().Err(err).Msg("")
+		log.Warn().Err(err).Msg("error loading config")
 	}
 }
 

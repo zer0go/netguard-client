@@ -12,10 +12,11 @@ import (
 )
 
 const (
+	AppName              = "NetGuard"
 	DefaultInterfaceName = "netguard"
 	DefaultMTU           = 1280
-	Path                 = "/etc/netguard"
 	FileName             = "config.yaml"
+	WireGuardNTUrl       = "https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip"
 )
 
 var (
@@ -32,8 +33,12 @@ func init() {
 	config = App{}
 }
 
+func Get() *App {
+	return &config
+}
+
 func Load() error {
-	data, err := os.ReadFile(Path + "/" + FileName)
+	data, err := os.ReadFile(filepath.Join(GetConfigPath(), FileName))
 	if err != nil {
 		return err
 	}
@@ -52,7 +57,7 @@ func Update(c App) error {
 		return err
 	}
 
-	err = os.WriteFile(Path+"/"+FileName, data, 0644)
+	err = os.WriteFile(filepath.Join(GetConfigPath(), FileName), data, os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -63,7 +68,7 @@ func Update(c App) error {
 }
 
 func IsEmpty() bool {
-	stat, err := os.Stat(Path + "/" + FileName)
+	stat, err := os.Stat(filepath.Join(GetConfigPath(), FileName))
 	if err != nil {
 		return true
 	}
@@ -99,8 +104,4 @@ func ConfigureLogger(verbosity int) {
 	if os.Getenv("LOG_FORMAT") != "json" {
 		log.Logger = log.Logger.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: zerolog.TimeFieldFormat})
 	}
-}
-
-func Get() *App {
-	return &config
 }
