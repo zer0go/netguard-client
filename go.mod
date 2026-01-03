@@ -1,6 +1,6 @@
 module github.com/zer0go/netguard-client
 
-go 1.21
+go 1.25
 
 require (
 	github.com/fatih/color v1.15.0

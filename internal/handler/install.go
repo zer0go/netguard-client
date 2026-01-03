@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"os"
+
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/cobra"
 	"github.com/zer0go/netguard-client/internal/config"
 	"github.com/zer0go/netguard-client/internal/network"
-	"os"
 )
 
 type InstallHandler struct {
@@ -47,9 +48,6 @@ func (h *InstallHandler) Handle(cmd *cobra.Command, _ []string) error {
 
 	networkInterface := network.NewInterfaceFromConfig(appConfig)
 	if err := networkInterface.Create(); err != nil {
-		return err
-	}
-	if err := networkInterface.Configure(); err != nil {
 		return err
 	}
 

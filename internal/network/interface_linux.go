@@ -1,11 +1,12 @@
 package network
 
 import (
+	"net"
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/vishvananda/netlink"
-	"net"
-	"os"
 )
 
 const (

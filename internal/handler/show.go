@@ -179,25 +179,29 @@ func formatBytes(b int64) string {
 }
 
 func greenBoldColor(s string) string {
-	return color.New(color.FgGreen, color.Bold).Sprintf(s)
+	return colorize(s, color.FgGreen, color.Bold)
 }
 
 func greenColor(s string) string {
-	return color.New(color.FgGreen).Sprintf(s)
+	return colorize(s, color.FgGreen)
 }
 
 func boldColor(s string) string {
-	return color.New(color.Bold).Sprintf(s)
+	return colorize(s, color.Bold)
 }
 
 func yellowBoldColor(s string) string {
-	return color.New(color.FgYellow, color.Bold).Sprintf(s)
+	return colorize(s, color.FgYellow, color.Bold)
 }
 
 func yellowColor(s string) string {
-	return color.New(color.FgYellow).Sprintf(s)
+	return colorize(s, color.FgYellow)
 }
 
 func cyanColor(s string) string {
-	return color.New(color.FgCyan).Sprintf(s)
+	return colorize(s, color.FgCyan)
+}
+
+func colorize(s string, c ...color.Attribute) string {
+	return color.New(c...).Sprintf(s)
 }

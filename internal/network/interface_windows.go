@@ -2,46 +2,44 @@ package network
 
 import (
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"net/netip"
 	"os/exec"
 	"strings"
+	"unsafe"
 
+	"github.com/rs/zerolog/log"
+	"github.com/zer0go/netguard-client/internal/config"
+
+	"github.com/pkg/errors"
 	"golang.org/x/sys/windows"
 	"golang.zx2c4.com/wireguard/windows/driver"
 )
 
-func (i *Interface) Create() error {
-	wgMutex.Lock()
-	defer wgMutex.Unlock()
+var (
+	modWireGuard                 = windows.NewLazyDLL("wireguard.dll")
+	procWireGuardCreate          = modWireGuard.NewProc("WireGuardCreateAdapter")
+	procWireGuardClose           = modWireGuard.NewProc("WireGuardCloseAdapter")
+	procWireGuardSetAdapterState = modWireGuard.NewProc("WireGuardSetAdapterState")
+)
 
-	err := i.LoadLink()
+func (i *Interface) Create() error {
+	interfaceName := config.Get().InterfaceName
+	namePtr, _ := windows.UTF16PtrFromString(interfaceName)
+	typePtr, _ := windows.UTF16PtrFromString("WireGuard")
+
+	_, _, err := procWireGuardCreate.Call(
+		uintptr(unsafe.Pointer(namePtr)),
+		uintptr(unsafe.Pointer(typePtr)),
+		0,
+	)
 	if err != nil {
-		log.Debug().Msg("creating windows tunnel")
-		windowsGUID, err := windows.GenerateGUID()
-		if err != nil {
-			return err
-		}
-		i.Link, err = driver.CreateAdapter(i.Name, "WireGuard", &windowsGUID)
-		if err != nil {
-			return err
-		}
-	} else {
-		log.Debug().Msg("re-using existing adapter")
+		return errors.Wrap(err, "failed to create WireGuard adapter")
 	}
 
-	log.Debug().Msg("created windows tunnel")
-
-	return i.Link.(*driver.Adapter).SetAdapterState(driver.AdapterStateUp)
+	return nil
 }
 
 func (i *Interface) LoadLink() error {
-	adapter, err := driver.OpenAdapter(i.Name)
-	if err != nil {
-		return err
-	}
-	i.Link = adapter
-
 	return nil
 }
 

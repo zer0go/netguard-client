@@ -3,23 +3,24 @@ package handler
 import (
 	"archive/zip"
 	"bytes"
-	"github.com/rs/zerolog/log"
-	"github.com/zer0go/netguard-client/internal/config"
 	"io"
 	"net/http"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/rs/zerolog/log"
+	"github.com/zer0go/netguard-client/internal/config"
 )
 
 const (
-	arch386       = "x86"
-	dllFilePath32 = "C:\\Windows\\System32\\wireguard.dll"
+	arch386     = "x86"
+	dllFilePath = "C:\\Windows\\System32\\wireguard.dll"
 )
 
 func install() error {
 	arch := getSimplifiedArch()
-	dllFilePath := dllFilePath32
+
 	if _, err := os.Stat(dllFilePath); err == nil {
 		log.Debug().
 			Str("arch", arch).
@@ -34,9 +35,7 @@ func install() error {
 	if err != nil {
 		return err
 	}
-	defer func(Body io.ReadCloser) {
-		_ = Body.Close()
-	}(resp.Body)
+	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -48,8 +47,14 @@ func install() error {
 		return err
 	}
 
+	// Look for the correct architecture path
+	archPath := arch + "/wireguard.dll"
+	if runtime.GOARCH == "amd64" {
+		archPath = "amd64/wireguard.dll"
+	}
+
 	for _, zipFile := range zipReader.File {
-		if !strings.Contains(zipFile.Name, arch+"/wireguard.dll") {
+		if !strings.Contains(zipFile.Name, archPath) {
 			continue
 		}
 
@@ -58,7 +63,7 @@ func install() error {
 			return err
 		}
 
-		err = os.WriteFile(dllFilePath, unzippedFileBytes, os.ModePerm)
+		err = os.WriteFile(dllFilePath, unzippedFileBytes, 0644)
 		if err != nil {
 			return err
 		}

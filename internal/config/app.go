@@ -1,22 +1,24 @@
 package config
 
 import (
-	"github.com/rs/zerolog"
-	"github.com/rs/zerolog/log"
-	"github.com/rs/zerolog/pkgerrors"
-	"gopkg.in/yaml.v3"
 	"os"
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog/pkgerrors"
+	"gopkg.in/yaml.v3"
 )
 
 const (
-	AppName              = "NetGuard"
-	DefaultInterfaceName = "netguard"
-	DefaultMTU           = 1280
-	FileName             = "config.yaml"
-	WireGuardNTUrl       = "https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip"
+	AppName                    = "NetGuard"
+	DefaultInterfaceName       = "netguard"
+	DefaultDarwinInterfaceName = "utun23120"
+	DefaultMTU                 = 1280
+	FileName                   = "config.yaml"
+	WireGuardNTUrl             = "https://download.wireguard.com/wireguard-nt/wireguard-nt-0.10.1.zip"
 )
 
 var (

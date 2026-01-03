@@ -106,16 +106,20 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 		Msg("config updated")
 
 	networkInterface := network.NewInterfaceFromConfig(appConfig)
+	defer func(networkInterface *network.Interface) {
+		_ = networkInterface.Close()
+	}(networkInterface)
+
 	if err := networkInterface.LoadLink(); err != nil {
-		return err
+		return errors.Wrap(err, "failed to load link")
 	}
 	if err := networkInterface.Configure(); err != nil {
-		return err
+		return errors.Wrap(err, "interface configure failed")
 	}
 
 	wg, err := wgctrl.New()
 	if err != nil {
-		return errors.Errorf("wgctrl %s", err)
+		return errors.Wrap(err, "failed to create wireguard interface")
 	}
 	defer func(wg *wgctrl.Client) {
 		_ = wg.Close()
@@ -140,13 +144,13 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 		if peer.Endpoint != "" {
 			peerEndpoint, err = net.ResolveUDPAddr("udp", peer.Endpoint)
 			if err != nil {
-				return err
+				return errors.Wrap(err, "failed to resolve peer endpoint")
 			}
 		}
 
 		peerPublicKey, err := wgtypes.ParseKey(peer.PublicKey)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "failed to parse peer public key")
 		}
 
 		peers = append(peers, wgtypes.PeerConfig{
@@ -161,11 +165,16 @@ func (h *JoinHandler) Handle(cmd *cobra.Command, _ []string) error {
 		})
 	}
 
-	return wg.ConfigureDevice(config.Get().InterfaceName, wgtypes.Config{
+	err = wg.ConfigureDevice(config.Get().InterfaceName, wgtypes.Config{
 		PrivateKey:   &privateKey,
 		FirewallMark: &firewallMark,
 		ListenPort:   &wgConfig.ListeningPort,
 		Peers:        peers,
 		ReplacePeers: true,
 	})
+
+	if err != nil {
+		return errors.Wrap(err, "failed to configure device")
+	}
+	return nil
 }
